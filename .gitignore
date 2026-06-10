@@ -1,0 +1,25 @@
+# Python virtual environments
+mlopsvenv/
+
+# Python caching systems
+__pycache__/
+*.pyc
+
+# IDE configurations
+.vscode/
+
+# Catch any MLflow database file anywhere in the project
+**/mlflow.db
+
+# Catch any mlruns or mlartifacts folders anywhere in the project hierarchy
+**/mlruns/
+**/mlartifacts/
+
+# Documentation and Reference Binaries
+*.pdf
+
+# General DVC / Heavy Data block safety rules
+# (DVC handles its internal caching, but keeping these ensures no slip-ups)
+*.csv
+*.pkl
+*.keras
