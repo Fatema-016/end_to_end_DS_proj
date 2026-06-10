@@ -1,6 +1,5 @@
-# ==========================================
+
 # 1. Virtual Environments & Packages
-# ==========================================
 # Local standard venv and conda environment leftovers
 dsprojvenv/
 .dsprojvenv/
@@ -28,9 +27,9 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# ==========================================
+
 # 2. Python Bytecode & Cache
-# ==========================================
+
 __pycache__/
 *.py[cod]
 *$py.class
@@ -38,10 +37,9 @@ __pycache__/
 .mypy_cache/
 .tox/
 
-# ==========================================
+
 # 3. VS Code & IDE Configurations
-# ==========================================
-# Keeps your workspace custom layout local to your PC
+# Keeps workspace custom layout local to PC
 .vscode/
 .idea/
 *.suo
@@ -50,9 +48,8 @@ __pycache__/
 *.sln
 *.swp
 
-# ==========================================
+
 # 4. Data Science, Artifacts & Logs
-# ==========================================
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
 
@@ -67,9 +64,8 @@ artifacts/
 logs/
 *.log
 
-# ==========================================
+
 # 5. OS Generated Files
-# ==========================================
 Thumbs.db
 Desktop.ini
 .DS_Store
