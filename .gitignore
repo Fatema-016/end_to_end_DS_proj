@@ -1,25 +1,75 @@
-# Python virtual environments
+# ==========================================
+# 1. Virtual Environments & Packages
+# ==========================================
+# Local standard venv and conda environment leftovers
 dsprojvenv/
+.dsprojvenv/
+venv/
+.venv/
+env/
+.env/
 
-# Python caching systems
+# Python packaging builds
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==========================================
+# 2. Python Bytecode & Cache
+# ==========================================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.tox/
 
-# IDE configurations
+# ==========================================
+# 3. VS Code & IDE Configurations
+# ==========================================
+# Keeps your workspace custom layout local to your PC
 .vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
 
-# Catch any MLflow database file anywhere in the project
-**/mlflow.db
+# ==========================================
+# 4. Data Science, Artifacts & Logs
+# ==========================================
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
 
-# Catch any mlruns or mlartifacts folders anywhere in the project hierarchy
-**/mlruns/
-**/mlartifacts/
+# MLflow tracking data and model artifacts
+mlruns/
+mlflow/
+.mlflow/
 
-# Documentation and Reference Binaries
-*.pdf
+# Data artifacts (Prevents pushing heavy CSVs/data folders to Git)
+data/
+artifacts/
+logs/
+*.log
 
-# General DVC / Heavy Data block safety rules
-# (DVC handles its internal caching, but keeping these ensures no slip-ups)
-*.csv
-*.pkl
-*.keras
+# ==========================================
+# 5. OS Generated Files
+# ==========================================
+Thumbs.db
+Desktop.ini
+.DS_Store
