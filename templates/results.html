@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wine Quality Result</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      background: #1a0a0e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(107,26,42,0.55) 0%, transparent 70%);
+      top: -150px; left: -150px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(61,15,23,0.5) 0%, transparent 70%);
+      bottom: -100px; right: -80px;
+      pointer-events: none;
+    }
+
+    .glass-card {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 560px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(201,162,75,0.25);
+      border-radius: 18px;
+      padding: 2.5rem 2.75rem 2.75rem;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Header */
+    .result-header { text-align: center; margin-bottom: 2rem; }
+    .check-ring {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(201,162,75,0.12);
+      border: 1px solid rgba(201,162,75,0.4);
+      margin-bottom: 14px;
+    }
+    .check-ring svg { width: 28px; height: 28px; stroke: #c9a24b; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .result-header h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 26px; font-weight: 500;
+      color: #f6f1e7; letter-spacing: .4px; margin-bottom: 5px;
+    }
+    .result-header p { font-size: 13px; color: rgba(246,241,231,0.45); }
+    .gold-rule {
+      width: 56px; height: 2px;
+      background: linear-gradient(90deg, transparent, #c9a24b, transparent);
+      border-radius: 2px; margin: 12px auto 0;
+    }
+
+    /* Score ring */
+    .score-ring-wrap { display: flex; justify-content: center; margin: 1.75rem 0 1.25rem; }
+    .score-ring { position: relative; width: 156px; height: 156px; }
+    .score-ring svg { width: 156px; height: 156px; transform: rotate(-90deg); }
+    .ring-bg   { fill: none; stroke: rgba(201,162,75,0.12); stroke-width: 10; }
+    .ring-fill {
+      fill: none; stroke: #c9a24b; stroke-width: 10; stroke-linecap: round;
+      stroke-dasharray: 432;
+      stroke-dashoffset: calc(432 - (432 * var(--score, 5) / 10));
+    }
+    .score-center {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%); text-align: center;
+    }
+    .score-num {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 46px; color: #c9a24b; line-height: 1;
+    }
+    .score-den { font-size: 12px; color: rgba(246,241,231,0.35); margin-top: 2px; }
+
+    /* Verdict pill */
+    .verdict-pill {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin: 0 auto 1.75rem; width: fit-content;
+      padding: 7px 20px; border-radius: 99px;
+      font-size: 13px; font-weight: 500; letter-spacing: .3px;
+    }
+    .verdict-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .verdict-poor      { background:rgba(226,75,74,0.14);   border:1px solid rgba(226,75,74,0.35);   color:#f09595; }
+    .verdict-poor      .verdict-dot { background:#f09595; }
+    .verdict-average   { background:rgba(239,159,39,0.14);  border:1px solid rgba(239,159,39,0.35);  color:#EF9F27; }
+    .verdict-average   .verdict-dot { background:#EF9F27; }
+    .verdict-good      { background:rgba(96,168,80,0.14);   border:1px solid rgba(96,168,80,0.35);   color:#7ed96a; }
+    .verdict-good      .verdict-dot { background:#7ed96a; }
+    .verdict-excellent { background:rgba(29,158,117,0.14);  border:1px solid rgba(29,158,117,0.35);  color:#5DCAA5; }
+    .verdict-excellent .verdict-dot { background:#5DCAA5; }
+
+    /* Section labels */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 500; letter-spacing: 1.3px;
+      text-transform: uppercase; color: #c9a24b;
+      margin: 1.5rem 0 .75rem;
+    }
+    .section-label::after { content:''; flex:1; height:1px; background:rgba(201,162,75,0.18); }
+    .section-label svg { width:13px; height:13px; stroke:#c9a24b; fill:none; stroke-width:1.9; flex-shrink:0; }
+
+    /* Quality scale bars */
+    .bar-row { margin-bottom: 11px; }
+    .bar-meta { display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; }
+    .bar-lbl  { color: rgba(246,241,231,0.5); }
+    .bar-val  { color: #c9a24b; font-weight: 500; }
+    .bar-track { height: 5px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+    .bar-fill  { height: 5px; border-radius: 99px; }
+
+    /* Action buttons */
+    .action-row { display: flex; gap: 12px; margin-top: 2rem; }
+    .btn-back {
+      flex:1; padding:13px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(201,162,75,0.22);
+      border-radius:10px; color:rgba(246,241,231,0.65);
+      font-family:'Inter',system-ui,sans-serif; font-size:14px; font-weight:500;
+      cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+      text-decoration:none; transition:background .15s;
+    }
+    .btn-back:hover { background:rgba(255,255,255,0.09); }
+    .btn-back svg { width:16px; height:16px; stroke:rgba(246,241,231,0.5); fill:none; stroke-width:1.9; }
+    .btn-new {
+      flex:1; padding:13px;
+      background:linear-gradient(135deg,#8b2635,#5b1924);
+      border:1px solid rgba(201,162,75,0.4);
+      border-radius:10px; color:#f6f1e7;
+      font-family:'Inter',system-ui,sans-serif; font-size:14px; font-weight:500;
+      cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+      text-decoration:none; transition:opacity .15s, transform .1s;
+    }
+    .btn-new:hover { opacity:.87; }
+    .btn-new:active { transform:scale(0.98); }
+    .btn-new svg { width:16px; height:16px; stroke:#c9a24b; fill:none; stroke-width:1.9; }
+
+    @media (max-width: 540px) {
+      .glass-card { padding:1.75rem 1.25rem 2rem; }
+      .action-row { flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+
+  {% set score = prediction | int %}
+
+  {% if score <= 4 %}
+    {% set verdict_class = "verdict-poor" %}
+    {% set verdict_text  = "Poor quality wine" %}
+    {% set bar_width     = (score * 10) | string + "%" %}
+    {% set bar_color     = "rgba(226,75,74,0.65)" %}
+  {% elif score <= 6 %}
+    {% set verdict_class = "verdict-average" %}
+    {% set verdict_text  = "Average quality wine" %}
+    {% set bar_width     = (score * 10) | string + "%" %}
+    {% set bar_color     = "rgba(239,159,39,0.75)" %}
+  {% elif score <= 8 %}
+    {% set verdict_class = "verdict-good" %}
+    {% set verdict_text  = "Good quality wine" %}
+    {% set bar_width     = (score * 10) | string + "%" %}
+    {% set bar_color     = "linear-gradient(90deg,#8b2635,#c9a24b)" %}
+  {% else %}
+    {% set verdict_class = "verdict-excellent" %}
+    {% set verdict_text  = "Excellent quality wine" %}
+    {% set bar_width     = (score * 10) | string + "%" %}
+    {% set bar_color     = "rgba(29,158,117,0.75)" %}
+  {% endif %}
+
+  <div class="glass-card">
+
+    <div class="result-header">
+      <div class="check-ring">
+        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <h1>Prediction complete</h1>
+      <p>Based on your physicochemical inputs</p>
+      <div class="gold-rule"></div>
+    </div>
+
+    <!-- Score ring — CSS var drives the arc fill from {{prediction}} -->
+    <div class="score-ring-wrap">
+      <div class="score-ring" style="--score: {{ score }}">
+        <svg viewBox="0 0 156 156">
+          <circle class="ring-bg"   cx="78" cy="78" r="68"/>
+          <circle class="ring-fill" cx="78" cy="78" r="68"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-num">{{ prediction }}</div>
+          <div class="score-den">out of 10</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict-pill {{ verdict_class }}">
+      <div class="verdict-dot"></div>
+      {{ verdict_text }}
+    </div>
+
+    <!-- Quality scale -->
+    <div class="section-label">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Quality scale
+    </div>
+
+    <div class="bar-row">
+      <div class="bar-meta">
+        <span class="bar-lbl">Poor &nbsp;(0 – 4)</span>
+        {% if score <= 4 %}<span class="bar-val">Your score: {{ score }}</span>{% endif %}
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:{% if score <= 4 %}{{ bar_width }}{% else %}28%{% endif %}; background:rgba(226,75,74,0.65);"></div>
+      </div>
+    </div>
+
+    <div class="bar-row">
+      <div class="bar-meta">
+        <span class="bar-lbl">Average &nbsp;(5 – 6)</span>
+        {% if score == 5 or score == 6 %}<span class="bar-val">Your score: {{ score }}</span>{% endif %}
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:{% if score == 5 or score == 6 %}{{ bar_width }}{% else %}55%{% endif %}; background:rgba(239,159,39,0.75);"></div>
+      </div>
+    </div>
+
+    <div class="bar-row">
+      <div class="bar-meta">
+        <span class="bar-lbl">Good &nbsp;(7 – 8)</span>
+        {% if score == 7 or score == 8 %}<span class="bar-val">Your score: {{ score }}</span>{% endif %}
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:{% if score == 7 or score == 8 %}{{ bar_width }}{% else %}74%{% endif %}; background:linear-gradient(90deg,#8b2635,#c9a24b);"></div>
+      </div>
+    </div>
+
+    <div class="bar-row">
+      <div class="bar-meta">
+        <span class="bar-lbl">Excellent &nbsp;(9 – 10)</span>
+        {% if score >= 9 %}<span class="bar-val">Your score: {{ score }}</span>{% endif %}
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:{% if score >= 9 %}{{ bar_width }}{% else %}96%{% endif %}; background:rgba(29,158,117,0.75);"></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-row">
+      <a href="/" class="btn-back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Go back
+      </a>
+      <a href="/" class="btn-new">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Predict another
+      </a>
+    </div>
+
+  </div>
+
+</body>
+</html>

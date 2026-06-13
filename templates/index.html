@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Wine Quality Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      background: #1a0a0e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(107,26,42,0.55) 0%, transparent 70%);
+      top: -150px; left: -150px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(61,15,23,0.5) 0%, transparent 70%);
+      bottom: -100px; right: -80px;
+      pointer-events: none;
+    }
+
+    .glass-card {
+      position: relative; z-index: 1;
+      width: 100%;
+      max-width: 660px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(201,162,75,0.25);
+      border-radius: 18px;
+      padding: 2.5rem 2.75rem 2.75rem;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .form-header { text-align: center; margin-bottom: 2rem; }
+    .wine-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(201,162,75,0.12);
+      border: 1px solid rgba(201,162,75,0.35);
+      margin-bottom: 14px;
+    }
+    .wine-badge svg { width: 26px; height: 26px; stroke: #c9a24b; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .form-header h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 500;
+      color: #f6f1e7;
+      letter-spacing: .4px;
+      margin-bottom: 6px;
+    }
+    .form-header p { font-size: 13px; color: rgba(246,241,231,0.45); }
+    .gold-rule {
+      width: 56px; height: 2px;
+      background: linear-gradient(90deg, transparent, #c9a24b, transparent);
+      border-radius: 2px;
+      margin: 14px auto 0;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      color: #c9a24b;
+      margin: 1.6rem 0 .75rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(201,162,75,0.18);
+    }
+    .section-label svg { width: 14px; height: 14px; stroke: #c9a24b; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(246,241,231,0.65);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .field label .unit {
+      font-size: 10px;
+      font-weight: 400;
+      color: rgba(246,241,231,0.28);
+      letter-spacing: .3px;
+    }
+
+    .field input[type="number"] {
+      width: 100%;
+      padding: 10px 13px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(201,162,75,0.18);
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #f6f1e7;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .field input[type="number"]::placeholder { color: rgba(246,241,231,0.22); }
+    .field input[type="number"]:focus {
+      outline: none;
+      border-color: rgba(201,162,75,0.7);
+      background: rgba(201,162,75,0.07);
+      box-shadow: 0 0 0 3px rgba(201,162,75,0.12);
+    }
+    .field input[type="number"]::-webkit-inner-spin-button,
+    .field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .field input[type="number"] { -moz-appearance: textfield; }
+
+    .submit-row {
+      margin-top: 2rem;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .btn-predict {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 14px;
+      background: linear-gradient(135deg, #8b2635 0%, #5b1924 100%);
+      border: 1px solid rgba(201,162,75,0.4);
+      border-radius: 10px;
+      color: #f6f1e7;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: .5px;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn-predict:hover { opacity: .87; }
+    .btn-predict:active { transform: scale(0.98); }
+    .btn-predict svg { width: 18px; height: 18px; stroke: #c9a24b; fill: none; stroke-width: 1.8; }
+    .score-hint {
+      font-size: 12px;
+      color: rgba(201,162,75,0.55);
+      text-align: right;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .result-block {
+      margin-top: 1.75rem;
+      padding: 1.25rem 1.5rem;
+      background: rgba(201,162,75,0.08);
+      border: 1px solid rgba(201,162,75,0.3);
+      border-radius: 10px;
+      text-align: center;
+    }
+    .result-block .result-label {
+      font-size: 12px;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: rgba(201,162,75,0.6);
+      margin-bottom: 4px;
+    }
+    .result-block .result-score {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 48px;
+      color: #c9a24b;
+      line-height: 1.1;
+    }
+    .result-block .result-sub { font-size: 12px; color: rgba(246,241,231,0.35); margin-top: 2px; }
+
+    @media (max-width: 540px) {
+      .glass-card { padding: 1.75rem 1.25rem 2rem; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-card">
+
+    <div class="form-header">
+      <div class="wine-badge">
+        <svg viewBox="0 0 24 24"><path d="M8 2h8l-1 7a5 5 0 0 1-6 0L8 2z"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
+      </div>
+      <h1>Red Wine Quality Predictor</h1>
+      <p>Enter physicochemical measurements to estimate quality</p>
+      <div class="gold-rule"></div>
+    </div>
+
+    <form action="/predict" method="POST">
+
+      <div class="section-label">
+        <svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 1 5 5c0 5-5 11-5 11S7 12 7 7a5 5 0 0 1 5-5z"/></svg>
+        Acidity profile
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fixed_acidity">Fixed acidity <span class="unit">g/dm³</span></label>
+          <input type="number" step="any" id="fixed_acidity" name="fixed_acidity" placeholder="e.g. 7.4" required>
+        </div>
+        <div class="field">
+          <label for="volatile_acidity">Volatile acidity <span class="unit">g/dm³</span></label>
+          <input type="number" step="any" id="volatile_acidity" name="volatile_acidity" placeholder="e.g. 0.70" required>
+        </div>
+        <div class="field">
+          <label for="citric_acid">Citric acid <span class="unit">g/dm³</span></label>
+          <input type="number" step="any" id="citric_acid" name="citric_acid" placeholder="e.g. 0.00" required>
+        </div>
+        <div class="field">
+          <label for="pH">pH <span class="unit">0 – 14</span></label>
+          <input type="number" step="any" id="pH" name="pH" placeholder="e.g. 3.51" required>
+        </div>
+      </div>
+
+      <div class="section-label">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Sugar &amp; minerals
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="residual_sugar">Residual sugar <span class="unit">g/dm³</span></label>
+          <input type="number" step="any" id="residual_sugar" name="residual_sugar" placeholder="e.g. 1.9" required>
+        </div>
+        <div class="field">
+          <label for="chlorides">Chlorides <span class="unit">g/dm³</span></label>
+          <input type="number" step="any" id="chlorides" name="chlorides" placeholder="e.g. 0.076" required>
+        </div>
+        <div class="field">
+          <label for="sulphates">Sulphates <span class="unit">g/dm³</span></label>
+          <input type="number" step="any" id="sulphates" name="sulphates" placeholder="e.g. 0.56" required>
+        </div>
+        <div class="field">
+          <label for="density">Density <span class="unit">g/cm³</span></label>
+          <input type="number" step="any" id="density" name="density" placeholder="e.g. 0.9978" required>
+        </div>
+      </div>
+
+      <div class="section-label">
+        <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        Sulfur dioxide
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="free_sulfur_dioxide">Free SO₂ <span class="unit">mg/dm³</span></label>
+          <input type="number" step="any" id="free_sulfur_dioxide" name="free_sulfur_dioxide" placeholder="e.g. 11" required>
+        </div>
+        <div class="field">
+          <label for="total_sulfur_dioxide">Total SO₂ <span class="unit">mg/dm³</span></label>
+          <input type="number" step="any" id="total_sulfur_dioxide" name="total_sulfur_dioxide" placeholder="e.g. 34" required>
+        </div>
+      </div>
+
+      <div class="section-label">
+        <svg viewBox="0 0 24 24"><path d="M8 2h8l-1 7a5 5 0 0 1-6 0L8 2z"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
+        Alcohol
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="alcohol">Alcohol content <span class="unit">% vol</span></label>
+          <input type="number" step="any" id="alcohol" name="alcohol" placeholder="e.g. 9.4" required>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="btn-predict">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Predict quality
+        </button>
+        <span class="score-hint">Score<br>0 – 10</span>
+      </div>
+
+    </form>
+
+    {% if prediction is not none %}
+    <div class="result-block">
+      <div class="result-label">Predicted quality score</div>
+      <div class="result-score">{{ prediction }}</div>
+      <div class="result-sub">out of 10</div>
+    </div>
+    {% endif %}
+
+  </div>
+
+</body>
+</html>
